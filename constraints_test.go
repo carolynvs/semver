@@ -710,3 +710,21 @@ func TestIsSuperset(t *testing.T) {
 		t.Errorf("%s is still a superset of %s, because isSupersetOf is supposed to ignore excluded versions", rc[1], rc[0])
 	}
 }
+
+func TestHasImpliedCaret(t *testing.T) {
+	testcases := map[string]bool{
+		"1.2.3":       true,
+		"1.2.*":       true,
+		"^1.2.3":      false,
+		"~1.2.3":      false,
+		"=1.2.3":      false,
+		"1.2.3-1.2.4": false,
+	}
+	for in, want := range testcases {
+		c, _ := NewConstraintIC(in)
+		got := HasImpliedCaret(c)
+		if got != want {
+			t.Fatalf("Expected IsImpliedConstraint to return %v for %v, but got %v", want, in, got)
+		}
+	}
+}

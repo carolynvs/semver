@@ -123,6 +123,17 @@ func NewConstraintIC(in string) (Constraint, error) {
 	return newConstraint(in, true, constraintCacheIC)
 }
 
+// HasImpliedCaret checks if a constraint was created using an implicit caret (^) operator.
+func HasImpliedCaret(c Constraint) bool {
+	if c == nil {
+		return false
+	}
+	if rc, ok := c.(rangeConstraint); ok {
+		return rc.impliedCaret
+	}
+	return false
+}
+
 func newConstraint(in string, ic bool, cache map[string]ccache) (Constraint, error) {
 	if CacheConstraints {
 		constraintCacheLock.RLock()

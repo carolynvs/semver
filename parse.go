@@ -58,14 +58,16 @@ func parseConstraint(c string, cbd bool) (Constraint, error) {
 
 	// If caret-by-default flag is on and there's no operator, convert the
 	// operator to a caret.
+	impliedCaret := false
 	if cbd && m[1] == "" {
 		m[1] = "^"
+		impliedCaret = true
 	}
 
 	switch m[1] {
 	case "^":
 		// Caret always expands to a range
-		return expandCaret(v), nil
+		return expandCaret(v, impliedCaret), nil
 	case "~":
 		// Tilde always expands to a range
 		return expandTilde(v, wildMinor), nil
@@ -94,7 +96,7 @@ func parseConstraint(c string, cbd bool) (Constraint, error) {
 	}
 }
 
-func expandCaret(v Version) Constraint {
+func expandCaret(v Version, impliedCaret bool) Constraint {
 	var maxv Version
 	// Caret behaves like tilde below 1.0.0
 	if v.major == 0 {
@@ -104,17 +106,18 @@ func expandCaret(v Version) Constraint {
 	}
 
 	return rangeConstraint{
-		min:        v,
-		max:        maxv,
-		includeMin: true,
-		includeMax: false,
+		min:          v,
+		max:          maxv,
+		includeMin:   true,
+		includeMax:   false,
+		impliedCaret: impliedCaret,
 	}
 }
 
 func expandTilde(v Version, wildMinor bool) Constraint {
 	if wildMinor {
 		// When minor is wild on a tilde, behavior is same as caret
-		return expandCaret(v)
+		return expandCaret(v, false)
 	}
 
 	maxv := Version{

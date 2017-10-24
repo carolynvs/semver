@@ -10,6 +10,7 @@ type rangeConstraint struct {
 	min, max               Version
 	includeMin, includeMax bool
 	excl                   []Version
+	impliedCaret           bool
 }
 
 func (rc rangeConstraint) Matches(v Version) error {
